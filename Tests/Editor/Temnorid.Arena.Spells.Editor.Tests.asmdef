@@ -1,0 +1,25 @@
+{
+    "name": "Temnorid.Arena.Spells.Editor.Tests",
+    "rootNamespace": "Temnorid.Arena.Spells.Editor.Tests",
+    "references": [
+        "Temnorid.Arena.Spells",
+        "Temnorid.Arena.Spells.Editor",
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

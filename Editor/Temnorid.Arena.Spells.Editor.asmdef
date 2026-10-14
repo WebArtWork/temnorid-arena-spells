@@ -1,0 +1,18 @@
+{
+    "name": "Temnorid.Arena.Spells.Editor",
+    "rootNamespace": "Temnorid.Arena.Spells.Editor",
+    "references": [
+        "Temnorid.Arena.Spells"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

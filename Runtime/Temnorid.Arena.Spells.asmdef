@@ -1,0 +1,24 @@
+{
+    "name": "Temnorid.Arena.Spells",
+    "rootNamespace": "Temnorid.Arena.Spells",
+    "references": [
+        "ITKamianets.Engine.Core",
+        "ITKamianets.Engine.Input",
+        "ITKamianets.Engine.Character",
+        "ITKamianets.Engine.Audio",
+        "ITKamianets.Engine.Network",
+        "Temnorid.Arena.Core",
+        "Unity.InputSystem",
+        "Unity.Netcode.Runtime",
+        "Unity.Collections"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

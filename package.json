@@ -1,0 +1,25 @@
+{
+  "name": "com.itkamianets.temnorid-arena-spells",
+  "version": "0.1.0",
+  "displayName": "Temnorid Arena: Spells",
+  "description": "Temnorid Arena spells instead of guns: fireball, frost nova, arcane shield, blink; server-authoritative casting with mana and cooldowns, visible effects, and the spell-casting bots.",
+  "unity": "6000.6",
+  "license": "MIT",
+  "author": {
+    "name": "IT Kamianets"
+  },
+  "keywords": [
+    "temnorid-arena",
+    "3d-engine",
+    "it-kamianets"
+  ],
+  "dependencies": {
+    "com.itkamianets.3d-unity-core": "0.1.0",
+    "com.itkamianets.3d-unity-input": "0.1.0",
+    "com.itkamianets.3d-unity-character": "0.1.0",
+    "com.itkamianets.3d-unity-audio": "0.1.0",
+    "com.itkamianets.3d-unity-network": "0.1.0",
+    "com.itkamianets.temnorid-arena-core": "0.1.0",
+    "com.unity.netcode.gameobjects": "2.13.3"
+  }
+}
