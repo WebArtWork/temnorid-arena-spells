@@ -10,10 +10,13 @@ using UnityEngine;
 namespace Temnorid.Arena.Spells
 {
     /// <summary>
-    /// Casts spells for a combatant, player or bot. The owner picks a spell (keys 1-4) and casts
-    /// it (the main button) at what the camera looks at; the server checks it is alive, the
-    /// cooldown and the mana, then casts: it flies projectiles, applies damage and teleports, so
-    /// hits cannot be faked. Every client sees the effects. Bots cast through <see cref="ServerCast"/>.
+    /// Casts spells for a combatant, player or bot. The owner picks a spell (keys 1-4, or the next
+    /// one with <c>NextSlot</c>) and casts it (the main button) at what it aims at: the screen
+    /// centre, or an enabled <see cref="IAimSource"/> next to it (a VR hand). The server checks it
+    /// is alive, the cooldown and the mana, then casts: it flies projectiles from the eyes,
+    /// applies damage and teleports, so hits cannot be faked whatever the device. Every client
+    /// sees the effects. Bots cast through <see cref="ServerCast"/>. The owner's controllers buzz
+    /// on a cast and on a hit taken (nothing happens without XR controllers).
     /// </summary>
     [RequireComponent(typeof(Combatant))]
     public class SpellCaster : NetworkBehaviour
@@ -32,7 +35,14 @@ namespace Temnorid.Arena.Spells
 
         public Combatant Combatant { get; private set; }
 
+        /// <summary>
+        /// Owner: while true, the main button doesn't cast, e.g. while the casting hand points at a
+        /// panel in VR (the same trigger clicks it).
+        /// </summary>
+        public bool InputBlocked { get; set; }
+
         private CharacterMotor _motor;
+        private IAimSource[] _aimSources;
         private float[] _readyAt;
         private GameObject _bubble;
         private readonly List<Projectile> _projectiles = new List<Projectile>();
@@ -42,7 +52,53 @@ namespace Temnorid.Arena.Spells
         {
             Combatant = GetComponent<Combatant>();
             _motor = GetComponent<CharacterMotor>();
+            _aimSources = GetComponents<IAimSource>();
             _readyAt = new float[Spells.Count];
+        }
+
+        public override void OnNetworkSpawn()
+        {
+            Combatant.Damaged += OnDamaged;
+        }
+
+        public override void OnNetworkDespawn()
+        {
+            Combatant.Damaged -= OnDamaged;
+        }
+
+        /// <summary>
+        /// The ray this caster aims along: an enabled <see cref="IAimSource"/> (a VR hand) when one
+        /// can aim, otherwise the middle of the screen.
+        /// </summary>
+        public Ray AimRay()
+        {
+            foreach (var source in _aimSources)
+            {
+                if (source is Behaviour behaviour && behaviour.isActiveAndEnabled && source.TryGetAimRay(out var ray))
+                {
+                    return ray;
+                }
+            }
+
+            var camera = Camera.main;
+            return camera != null ? camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f)) : new Ray(_motor.EyePosition, transform.forward);
+        }
+
+        /// <summary>True when an <see cref="IAimSource"/> (e.g. a VR hand) aims instead of the screen centre.</summary>
+        public bool AimsFromSource
+        {
+            get
+            {
+                foreach (var source in _aimSources)
+                {
+                    if (source is Behaviour behaviour && behaviour.isActiveAndEnabled && source.TryGetAimRay(out _))
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
         }
 
         public void Select(int slot)
@@ -108,9 +164,14 @@ namespace Temnorid.Arena.Spells
                 Select(slot - 1);
             }
 
-            if (input.Player.Primary.WasPressedThisFrame())
+            if (input.Player.NextSlot.WasPressedThisFrame())
             {
-                TryCast(SelectedSlot, AimPoint());
+                Select((SelectedSlot + 1) % Spells.Count);
+            }
+
+            if (input.Player.Primary.WasPressedThisFrame() && !InputBlocked && TryCast(SelectedSlot, AimPoint()))
+            {
+                input.Haptic(input.DominantHand, 0.35f, 0.08f);
             }
         }
 
@@ -133,12 +194,21 @@ namespace Temnorid.Arena.Spells
             return true;
         }
 
-        /// <summary>What the middle of the screen points at, ignoring this combatant.</summary>
+        /// <summary>What the <see cref="AimRay"/> points at, ignoring this combatant.</summary>
         public Vector3 AimPoint()
         {
-            var camera = Camera.main;
-            var ray = camera != null ? camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f)) : new Ray(_motor.EyePosition, transform.forward);
+            var ray = AimRay();
             return NearestHit(ray.origin, 0f, ray.direction, 200f, out var hit, out _) ? hit.point : ray.GetPoint(100f);
+        }
+
+        private void OnDamaged(float amount)
+        {
+            if (IsOwner && playerControlled && amount > 0f)
+            {
+                var strength = Mathf.Clamp(amount / 40f, 0.3f, 1f);
+                EngineInput.Default.Haptic(HandSide.Left, strength, 0.15f);
+                EngineInput.Default.Haptic(HandSide.Right, strength, 0.15f);
+            }
         }
 
         [Rpc(SendTo.Server)]

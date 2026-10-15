@@ -18,9 +18,13 @@ Version 0.1.
 
 * `SpellBook` / `SpellDefinition`: fireball (25 damage, 12 mana, 0.5 s), frost nova (35 damage within 6 m, 30 mana, 6 s), arcane shield (50 for 5 s, 25 mana, 12 s), blink (9 m, stops at walls, 20 mana, 5 s).
 * `SpellCaster`: slot selection, `TryCast` (owner) → server `ServerCast` with cooldown and mana checks (0.15 s slack for remote players), server-side projectiles, nova, shield, blink; effects on every client (ball, ring, bubble, flashes); cooldowns for the HUD.
+* `ArenaCharacterVisuals`: the model's cast animation per spell (triggers `CastProjectile`, `CastNova`, `CastShield`, `CastBlink`), `Hit`, `Dead`, and the accent color (you cyan, other players gold, bots red) through a property block; driven by networked events, so everyone sees the same.
+* Aim: the screen centre, or an enabled `IAimSource` next to the caster (a VR hand: `AimRay`, `AimsFromSource`). Projectiles still start at the eyes and the server checks every cast as before, so VR and flat players are equal.
+* VR: `NextSlot` (right stick click) cycles spells; `InputBlocked` stops the trigger casting while the casting hand points at a panel; the controllers buzz on a cast and on a hit taken (`EngineInput.Haptic`).
+* `SpellAimVisual`: in VR, a glow at the casting hand in the selected spell's colour (dim while cooling down) and a short aim line; hidden on flat screens, for others and while dead.
 * `SpellBot`: server-side bot: nearest enemy, approach and strafe, hop when stuck, fireballs with aim error when in sight, nova up close, shield when hurt, blink away when low.
 
-Checked in Play mode: a fireball hits a bot for 25, frost nova for 35 at 2 m, the shield gives 50, blink moves 9 m; 5 bots fight each other and the player (66 kills in 30 s).
+Checked in Play mode with simulated XR controllers: the trigger casts along the hand ray, a right stick click selects the next spell, a spell picked on the wrist panel is cast next. Earlier: a fireball hits a bot for 25, frost nova for 35 at 2 m, the shield gives 50, blink moves 9 m; 5 bots fight each other and the player (66 kills in 30 s).
 
 ### Roadmap
 
