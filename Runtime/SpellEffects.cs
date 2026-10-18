@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Temnorid.Arena.Spells
 {
-    /// <summary>Simple shapes for spells until there is art: a glowing ball, an expanding ring, a bubble, a flash.</summary>
+    /// <summary>Elemental spell art and shared materials for aiming and fallback effects.</summary>
     internal static class SpellEffects
     {
         private static readonly Dictionary<Color, Material> Materials = new Dictionary<Color, Material>();
@@ -33,9 +33,7 @@ namespace Temnorid.Arena.Spells
         /// <summary>A ring growing to a radius and fading, e.g. a nova.</summary>
         public static void Ring(Vector3 center, float radius, Color color)
         {
-            var go = Shape(PrimitiveType.Cylinder, color);
-            go.transform.position = center + Vector3.up * 0.1f;
-            go.AddComponent<Grow>().Begin(new Vector3(radius * 2f, 0.05f, radius * 2f), 0.35f);
+            ElementalSpellVisual.Nova(center, radius, color);
         }
 
         /// <summary>A short flash, e.g. where a blink starts and ends or a projectile hits.</summary>
@@ -48,12 +46,7 @@ namespace Temnorid.Arena.Spells
 
         public static GameObject Bubble(Transform owner, Color color)
         {
-            var go = Shape(PrimitiveType.Sphere, new Color(color.r, color.g, color.b, 1f));
-            go.name = "Shield";
-            go.transform.SetParent(owner, false);
-            go.transform.localPosition = Vector3.up * 0.9f;
-            go.transform.localScale = new Vector3(1.4f, 2f, 1.4f);
-            return go;
+            return ElementalSpellVisual.Shield(owner, color);
         }
 
         private static GameObject Shape(PrimitiveType type, Color color)

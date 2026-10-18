@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Frost nova now has expanding frost edges, ice splinters and ground mist; arcane shield has
+  a transparent rim-lit field and flowing arcs; blink has distinct departure/arrival wisps
+  and residual motes. Cosmetic only, with shared build-retained URP energy shading.
+
+- Fireball combustion visual: hot core, turbulent world-space flame wake, drifting embers,
+  flickering light and a surface impact burst with rising smoke. No gameplay balance changes.
+
 ### Added
 
 - Aim from an `IAimSource` (VR hand) when one is enabled; `AimRay`, `AimsFromSource`, `InputBlocked`.

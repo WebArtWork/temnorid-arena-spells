@@ -295,18 +295,20 @@ namespace Temnorid.Arena.Spells
             switch (spell.Kind)
             {
                 case SpellKind.Projectile:
-                    var ball = SpellEffects.Ball(a, spell.Radius, spell.Color);
+                    var ball = spell.Id == "fireball"
+                        ? FireSpellVisual.Projectile(a, b, spell.Radius)
+                        : SpellEffects.Ball(a, spell.Radius, spell.Color);
                     ball.AddComponent<FlyingBall>().Begin(this, b, spell);
                     break;
                 case SpellKind.Nova:
                     SpellEffects.Ring(a, spell.Radius, spell.Color);
                     break;
                 case SpellKind.Shield:
-                    SpellEffects.Flash(a + Vector3.up, 2f, spell.Color);
+                    // The field itself forms around the caster while Shield is active.
                     break;
                 case SpellKind.Blink:
-                    SpellEffects.Flash(a + Vector3.up, 1.5f, spell.Color);
-                    SpellEffects.Flash(b + Vector3.up, 1.5f, spell.Color);
+                    ElementalSpellVisual.Blink(a, false);
+                    ElementalSpellVisual.Blink(b, true);
                     if (!IsServer)
                     {
                         _motor.Teleport(b, yaw);
@@ -423,6 +425,7 @@ namespace Temnorid.Arena.Spells
             private Vector3 _direction;
             private SpellDefinition _spell;
             private float _remaining;
+            private bool _finished;
 
             public void Begin(SpellCaster caster, Vector3 direction, SpellDefinition spell)
             {
@@ -434,11 +437,13 @@ namespace Temnorid.Arena.Spells
 
             private void Update()
             {
+                if (_finished) return;
                 var step = _spell.Speed * Time.deltaTime;
                 if (_caster != null && _caster.NearestHit(transform.position, _spell.Radius, _direction, step, out var hit, out _))
                 {
-                    SpellEffects.Flash(hit.point, 1f, _spell.Color);
-                    Destroy(gameObject);
+                    if (_spell.Id == "fireball") FireSpellVisual.Impact(hit.point, hit.normal);
+                    else SpellEffects.Flash(hit.point, 1f, _spell.Color);
+                    Finish();
                     return;
                 }
 
@@ -446,8 +451,16 @@ namespace Temnorid.Arena.Spells
                 _remaining -= step;
                 if (_remaining <= 0f || _caster == null)
                 {
-                    Destroy(gameObject);
+                    Finish();
                 }
+            }
+
+            private void Finish()
+            {
+                _finished = true;
+                var fire = GetComponent<FireSpellVisual>();
+                if (fire != null) fire.Stop();
+                else Destroy(gameObject);
             }
         }
     }
